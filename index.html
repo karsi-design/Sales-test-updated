@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mittal Portfolios — Sales Assessment</title>
+<style>
+  :root {
+    --navy: #0a1628;
+    --navy-mid: #1a2f52;
+    --gold: #c9a227;
+    --gold-light: #f0d078;
+    --gold-bg: #fdf8ee;
+    --bg: #f4f6fa;
+    --surface: #ffffff;
+    --border: #dde3ef;
+    --text: #1a2035;
+    --muted: #6b7a9a;
+    --red: #d63031;
+    --red-bg: #fff5f5;
+    --green: #00b894;
+    --mono: 'Courier New', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Allow text selection only in textareas */
+  textarea { -webkit-user-select: text; user-select: text; }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--navy);
+    color: #fff;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+  }
+  .logo { font-size: 14px; font-weight: 700; letter-spacing: 0.04em; color: #e8eaf0; }
+  .logo span { color: var(--gold); }
+
+  #timer-box {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 5px 14px;
+    font-size: 12px;
+    color: #aeb8d0;
+  }
+  #timer-display {
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    min-width: 54px;
+    text-align: center;
+  }
+  #timer-display.warning { color: var(--gold-light); }
+  #timer-display.critical { color: #ff6b6b; animation: blink 1s step-end infinite; }
+  @keyframes blink { 50% { opacity: 0.3; } }
+
+  /* ── WARNING BANNER ── */
+  #warning-banner {
+    display: none;
+    background: #fff3cd;
+    border-bottom: 2px solid var(--gold);
+    padding: 9px 24px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #7a5200;
+    text-align: center;
+    letter-spacing: 0.02em;
+  }
+  #warning-banner.show { display: block; }
+
+  /* ── SCREENS ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── CENTERED CARD ── */
+  .card-wrap {
+    min-height: calc(100vh - 52px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 36px 40px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 4px 24px rgba(10,22,40,0.10);
+  }
+  @media (max-width: 540px) {
+    .card { padding: 28px 20px; border-radius: 12px; }
+  }
+
+  .card-logo {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .card-logo .brand {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--navy);
+    letter-spacing: 0.02em;
+  }
+  .card-logo .brand span { color: var(--gold); }
+  .card-logo .sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 3px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .card h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+  .card p {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  /* ── FORM FIELDS ── */
+  .field { margin-bottom: 18px; }
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--navy-mid);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .field input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--text);
+    background: #fafbfd;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-user-select: text;
+    user-select: text;
+  }
+  .field input:focus { border-color: var(--navy-mid); background: #fff; }
+  .field-error {
+    font-size: 12px;
+    color: var(--red);
+    margin-top: 5px;
+    display: none;
+  }
+  .field-error.show { display: block; }
+
+  /* ── PHONE ROW ── */
+  .phone-row { display: flex; gap: 8px; align-items: flex-start; }
+  .phone-row input { flex: 1; }
+  .phone-row .verify-btn {
+    padding: 11px 18px;
+    background: var(--navy);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .phone-row .verify-btn:hover { background: var(--navy-mid); }
+  .phone-row .verify-btn:disabled { background: #aaa; cursor: default; }
+
+  .verified-badge {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--green);
+    margin-top: 6px;
+  }
+  .verified-badge.show { display: flex; }
+
+  /* ── BUTTONS ── */
+  .btn-primary {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: var(--navy);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-primary:hover { background: var(--navy-mid); }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:disabled { background: #b0b8cc; cursor: default; }
+  .btn-primary.gold {
+    background: var(--gold);
+    color: var(--navy);
+  }
+  .btn-primary.gold:hover { background: #b8911f; color: #fff; }
+
+  /* ── DISCLAIMER ── */
+  .disclaimer-box {
+    background: var(--gold-bg);
+    border: 1.5px solid var(--gold);
+    border-radius: 10px;
+    padding: 20px 22px;
+    margin: 20px 0;
+    font-size: 13px;
+    line-height: 1.75;
+    color: var(--text);
+  }
+  .disclaimer-box h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .disclaimer-box ul { padding-left: 18px; }
+  .disclaimer-box li { margin-bottom: 7px; }
+
+  .checkbox-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 18px 0;
+    cursor: pointer;
+  }
+  .checkbox-row input[type=checkbox] {
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
+    accent-color: var(--navy);
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .checkbox-row span {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  /* ── QUIZ SCREEN ── */
+  #quiz-screen {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 20px 80px;
+  }
+
+  #progress-wrap {
+    background: var(--border);
+    border-radius: 4px;
+    height: 4px;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+  #progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--navy-mid), var(--gold));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .q-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 26px;
+    margin-bottom: 18px;
+    transition: border-color 0.2s;
+  }
+  .q-card:focus-within { border-color: var(--navy-mid); }
+
+  .q-meta {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .q-text {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--text);
+    margin-bottom: 18px;
+    font-weight: 500;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 9px; }
+  .option-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 9px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.15s, border-color 0.15s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .option-label:hover { background: var(--gold-bg); border-color: var(--gold); }
+  .option-label input[type=radio] { accent-color: var(--navy); width: 17px; height: 17px; flex-shrink: 0; }
+  .option-label:has(input:checked) { background: var(--gold-bg); border-color: var(--gold); }
+  .option-label:has(input:checked) span { font-weight: 600; color: var(--navy); }
+
+  textarea {
+    width: 100%;
+    min-height: 100px;
+    border: 1.5px solid var(--border);
+    border-radius: 9px;
+    padding: 12px 14px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text);
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+    background: #fafbfd;
+    -webkit-user-select: text;
+    user-select: text;
+  }
+  textarea:focus { border-color: var(--navy-mid); background: #fff; }
+
+  #submit-btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: var(--navy);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    margin-top: 28px;
+    transition: background 0.2s;
+  }
+  #submit-btn:hover { background: var(--navy-mid); }
+
+  /* section badge */
+  .section-badge {
+    display: inline-block;
+    background: var(--navy);
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin: 28px 0 16px;
+  }
+
+  /* ── OVERLAYS ── */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,22,40,0.92);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .overlay.show { display: flex; }
+
+  .overlay-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 36px 32px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+  }
+  .overlay-icon { font-size: 48px; margin-bottom: 16px; }
+  .overlay-title { font-size: 20px; font-weight: 800; color: var(--navy); margin-bottom: 10px; }
+  .overlay-body { font-size: 14px; color: var(--muted); line-height: 1.65; margin-bottom: 22px; }
+  .overlay-btn {
+    display: inline-block;
+    padding: 12px 32px;
+    background: var(--navy);
+    color: #fff;
+    border: none;
+    border-radius: 9px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--navy);
+    color: #fff;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+    max-width: 90vw;
+    text-align: center;
+  }
+  #toast.show { opacity: 1; }
+
+  /* ── RESULT SCREEN ── */
+  .result-wrap {
+    min-height: calc(100vh - 52px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+  .result-card {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 40px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(10,22,40,0.12);
+  }
+  .result-icon { font-size: 56px; margin-bottom: 14px; }
+  .result-title { font-size: 24px; font-weight: 800; color: var(--navy); margin-bottom: 6px; }
+  .result-sub { font-size: 14px; color: var(--muted); margin-bottom: 28px; }
+
+  .result-grid {
+    background: var(--gold-bg);
+    border: 1.5px solid var(--gold);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    text-align: left;
+  }
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 18px;
+    border-bottom: 1px solid #ede3c0;
+    font-size: 14px;
+  }
+  .result-row:last-child { border-bottom: none; }
+  .result-row .label { color: var(--muted); font-weight: 500; }
+  .result-row .value { font-weight: 700; color: var(--navy); }
+  .result-row.flag-row .value { color: var(--red); }
+
+  .result-note {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    padding: 14px 18px;
+    background: #f4f6fa;
+    border-radius: 10px;
+  }
+
+  /* ── TERMINATED SCREEN ── */
+  .terminated-card {
+    background: var(--red-bg);
+    border: 2px solid var(--red);
+  }
+
+  /* ── LOADING SPINNER ── */
+  .spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── MOBILE TWEAKS ── */
+  @media (max-width: 600px) {
+    #quiz-screen { padding: 20px 12px 80px; }
+    .q-card { padding: 18px 16px; }
+    .q-text { font-size: 14px; }
+    .option-label { font-size: 13px; padding: 10px 12px; }
+    .result-card { padding: 28px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header>
+  <div class="logo">MITTAL <span>PORTFOLIOS</span></div>
+  <div id="timer-box">
+    ⏱ <span id="timer-display">20:00</span>
+  </div>
+</header>
+
+<div id="warning-banner">⚠ This window is being monitored — do not switch tabs or minimize</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 1: CREDENTIALS
+════════════════════════════════════════ -->
+<div id="screen-credentials" class="screen active">
+  <div class="card-wrap">
+    <div class="card">
+      <div class="card-logo">
+        <div class="brand">MITTAL <span>PORTFOLIOS</span></div>
+        <div class="sub">Sales Assessment Portal</div>
+      </div>
+      <h2>Candidate Login</h2>
+      <p>Please fill in your details. Your mobile number must be pre-registered to proceed.</p>
+
+      <div class="field">
+        <label>Full Name</label>
+        <input type="text" id="inp-name" placeholder="Enter your full name" autocomplete="name" maxlength="80">
+        <div class="field-error" id="err-name">Please enter your full name.</div>
+      </div>
+
+      <div class="field">
+        <label>Mobile Number</label>
+        <div class="phone-row">
+          <input type="tel" id="inp-phone" placeholder="10-digit mobile number" maxlength="10" pattern="[0-9]{10}" inputmode="numeric">
+          <button class="verify-btn" id="btn-verify" onclick="verifyPhone()">Verify</button>
+        </div>
+        <div class="field-error" id="err-phone">Enter a valid 10-digit number.</div>
+        <div class="verified-badge" id="verified-badge">✅ Number verified</div>
+      </div>
+
+      <div class="field">
+        <label>Email Address</label>
+        <input type="email" id="inp-email" placeholder="you@example.com" autocomplete="email" maxlength="100" inputmode="email">
+        <div class="field-error" id="err-email">Enter a valid email address.</div>
+      </div>
+
+      <button class="btn-primary gold" id="btn-proceed" onclick="proceedToDisclaimer()" disabled>
+        Proceed to Instructions →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 2: DISCLAIMER
+════════════════════════════════════════ -->
+<div id="screen-disclaimer" class="screen">
+  <div class="card-wrap">
+    <div class="card" style="max-width:560px">
+      <div class="card-logo">
+        <div class="brand">MITTAL <span>PORTFOLIOS</span></div>
+        <div class="sub">Sales Assessment — Instructions</div>
+      </div>
+      <div class="disclaimer-box">
+        <h3>📋 Test Rules & Instructions</h3>
+        <ul>
+          <li><strong>Duration:</strong> 20 minutes. The timer starts when you click Begin.</li>
+          <li><strong>Questions:</strong> 18 MCQs (1 mark each) + 5 descriptive questions (evaluated manually).</li>
+          <li><strong>No tab switching</strong> — switching away will trigger a warning. 2 violations = test terminated.</li>
+          <li><strong>No minimizing</strong> the window or switching apps during the test.</li>
+          <li><strong>No keyboard shortcuts</strong> (Ctrl+C, Ctrl+V, etc.) are allowed.</li>
+          <li><strong>No right-click</strong> is allowed inside the test window.</li>
+          <li><strong>One attempt only</strong> — your mobile number allows a single submission.</li>
+          <li>Once submitted, you cannot retake the test.</li>
+          <li>Descriptive answers will be reviewed separately by HR; only MCQ scores appear instantly.</li>
+          <li>Ensure a stable internet connection before starting.</li>
+        </ul>
+      </div>
+      <label class="checkbox-row">
+        <input type="checkbox" id="chk-agree" onchange="toggleBeginBtn()">
+        <span>I have read and understood the above rules, and I agree to take this test honestly.</span>
+      </label>
+      <button class="btn-primary" id="btn-begin" onclick="beginTest()" disabled>
+        Begin Test →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 3: QUIZ
+════════════════════════════════════════ -->
+<div id="screen-quiz" class="screen">
+  <div id="quiz-screen">
+    <div id="progress-wrap"><div id="progress-fill"></div></div>
+    <div id="questions-container"></div>
+    <button id="submit-btn" onclick="confirmSubmit()">Submit Test →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 4: RESULT
+════════════════════════════════════════ -->
+<div id="screen-result" class="screen">
+  <div class="result-wrap">
+    <div class="result-card">
+      <div class="result-icon" id="result-icon">✅</div>
+      <div class="result-title" id="result-title">Test Submitted!</div>
+      <div class="result-sub" id="result-sub">Thank you for taking the Mittal Portfolios Sales Assessment.</div>
+      <div class="result-grid" id="result-box"></div>
+      <div class="result-note">
+        Your responses have been recorded. HR will review your descriptive answers and reach out to you shortly.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 5: TERMINATED
+════════════════════════════════════════ -->
+<div id="screen-terminated" class="screen">
+  <div class="result-wrap">
+    <div class="result-card terminated-card">
+      <div class="result-icon">🚫</div>
+      <div class="result-title" style="color:var(--red)">Test Terminated</div>
+      <div class="result-sub">Your test was terminated due to repeated violations of test rules.</div>
+      <div class="result-note" style="background:#fff0f0; margin-top:16px">
+        Multiple tab switches / window changes were detected. Your partial responses have been recorded and flagged. Please contact HR at Mittal Portfolios if you believe this was an error.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     OVERLAY: VIOLATION WARNING
+════════════════════════════════════════ -->
+<div class="overlay" id="overlay-violation">
+  <div class="overlay-card">
+    <div class="overlay-icon">⚠️</div>
+    <div class="overlay-title">Warning: <span id="v-count">1st</span> Violation</div>
+    <div class="overlay-body">
+      You left the test window. This has been recorded.<br>
+      <strong>One more violation will terminate your test.</strong>
+    </div>
+    <button class="overlay-btn" onclick="dismissOverlay('overlay-violation')">Return to Test</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     OVERLAY: CONFIRM SUBMIT
+════════════════════════════════════════ -->
+<div class="overlay" id="overlay-submit">
+  <div class="overlay-card">
+    <div class="overlay-icon">📝</div>
+    <div class="overlay-title">Submit Test?</div>
+    <div class="overlay-body">
+      Once submitted you cannot make changes.<br>Are you sure you want to submit?
+    </div>
+    <div style="display:flex;gap:12px;justify-content:center">
+      <button class="overlay-btn" style="background:#888" onclick="dismissOverlay('overlay-submit')">Go Back</button>
+      <button class="overlay-btn" id="btn-confirm-submit" onclick="submitTest(true)">Yes, Submit</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TOAST ═══ -->
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  CONFIG — set your Google Apps Script Web App URL here
+// ═══════════════════════════════════════════════════════
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyem5aSnlUMTjuREFlGdUtYo9nPp2jmdJEoKIlcpI4N_xctDak7_WJ0np5X-YW8gfLW/exec';
+// ^^ Replace with your deployed Google Apps Script URL after setup
+
+// ═══════════════════════════════════════════════════════
+//  QUESTIONS
+// ═══════════════════════════════════════════════════════
+const QUESTIONS = [
+  // MCQs
+  { type:'mcq', text:'What does IPO stand for?', options:['Initial Price Offering','Initial Public Offering','Internal Public Option','Investment Public Offering'], correct:1 },
+  { type:'mcq', text:'Which regulatory body governs the Indian securities market?', options:['RBI','IRDAI','SEBI','NABARD'], correct:2 },
+  { type:'mcq', text:'Which index represents 50 major companies listed on NSE?', options:['Sensex','Nifty','BSE','NSE'], correct:1 },
+  { type:'mcq', text:'What does EPS stand for?', options:['Earnings per Share','Equity per Stock','Estimated Price Share','Earnings Price Standard'], correct:0 },
+  { type:'mcq', text:'Which financial statement shows a company\'s profitability?', options:['Balance Sheet','Cash Flow Statement','Income Statement (P&L Account)','Trial Balance'], correct:2 },
+  { type:'mcq', text:'Which ratio is used to evaluate the valuation of a stock?', options:['Current Ratio','Debt-Equity Ratio','P/E Ratio','Quick Ratio'], correct:2 },
+  { type:'mcq', text:'What does DCF stand for?', options:['Discounted Cash Flow','Direct Cash Fund','Debt Cash Flow','Dividend Cash Formula'], correct:0 },
+  { type:'mcq', text:'Which of the following is a derivative instrument?', options:['Equity Shares','Bonds','Futures Contract','Fixed Deposit'], correct:2 },
+  { type:'mcq', text:'Which institution decides the Repo Rate in India?', options:['SEBI','RBI','NSE','Ministry of Finance'], correct:1 },
+  { type:'mcq', text:'Which risk cannot be eliminated through diversification?', options:['Business Risk','Company Risk','Unsystematic Risk','Systematic Risk'], correct:3 },
+  { type:'mcq', text:'What does ROE stand for?', options:['Return on Equity','Rate of Earnings','Return on Expense','Revenue on Equity'], correct:0 },
+  { type:'mcq', text:'Which market deals with the buying and selling of existing securities?', options:['Primary Market','Secondary Market','Commodity Market','Forex Market'], correct:1 },
+  { type:'mcq', text:'Which among the following is NOT a financial statement?', options:['Balance Sheet','Profit & Loss Account','Cash Flow Statement','Market Share Statement'], correct:3 },
+  { type:'mcq', text:'What is the full form of NAV in mutual funds?', options:['Net Asset Value','National Asset Value','Net Average Value','National Average Valuation'], correct:0 },
+  { type:'mcq', text:'Which ratio measures a company\'s ability to meet short-term obligations?', options:['P/E Ratio','Current Ratio','ROE','EBITDA Margin'], correct:1 },
+  { type:'mcq', text:'Which type of analysis studies charts and price movements?', options:['Fundamental Analysis','Ratio Analysis','Technical Analysis','Vertical Analysis'], correct:2 },
+  { type:'mcq', text:'What is EBITDA?', options:['Earnings before Interest, Taxes, Depreciation and Amortization','Earnings Before Income and Tax Adjustments','Estimated Business Income Tax Analysis','Earnings Balance Tax Account'], correct:0 },
+  { type:'mcq', text:'Diversification helps in reducing:', options:['Inflation Risk','Interest Rate Risk','Unsystematic Risk','Market Risk'], correct:2 },
+  // Descriptive
+  { type:'text', text:'What is a Bearish and Bullish Market? Explain briefly.' },
+  { type:'text', text:'What is the difference between listed and unlisted shares?' },
+  { type:'text', text:'Explain the concept of market capitalization.' },
+  { type:'text', text:'What is the difference between NSE and BSE?' },
+  { type:'text', text:'What is the difference between fundamental analysis and technical analysis?' }
+];
+
+const MCQ_COUNT = QUESTIONS.filter(q=>q.type==='mcq').length;
+const TOTAL_SECONDS = 20 * 60;
+
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+let candidate = { name:'', phone:'', email:'' };
+let phoneVerified = false;
+let testActive = false;
+let testEnded = false;
+let violations = 0;
+let violationOverlayOpen = false;
+let timerInterval = null;
+let secondsLeft = TOTAL_SECONDS;
+let startTime = null;
+
+// ═══════════════════════════════════════════════════════
+//  SCREEN ROUTING
+// ═══════════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════════
+let toastTimer;
+function showToast(msg, duration=3000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), duration);
+}
+
+// ═══════════════════════════════════════════════════════
+//  PHONE VERIFICATION
+// ═══════════════════════════════════════════════════════
+async function verifyPhone() {
+  const ph = document.getElementById('inp-phone').value.trim();
+  const errEl = document.getElementById('err-phone');
+  errEl.classList.remove('show');
+
+  if (!/^\d{10}$/.test(ph)) {
+    errEl.textContent = 'Enter a valid 10-digit number.';
+    errEl.classList.add('show');
+    return;
+  }
+
+  const btn = document.getElementById('btn-verify');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Checking…';
+
+  try {
+    const res = await fetch(APPS_SCRIPT_URL + '?action=verify&phone=' + ph);
+    const data = await res.json();
+
+    if (data.status === 'allowed') {
+      phoneVerified = true;
+      document.getElementById('verified-badge').classList.add('show');
+      document.getElementById('inp-phone').readOnly = true;
+      btn.style.display = 'none';
+      checkProceedReady();
+      showToast('✅ Number verified successfully!');
+    } else if (data.status === 'used') {
+      errEl.textContent = '⚠ This number has already been used to attempt the test.';
+      errEl.classList.add('show');
+      btn.disabled = false;
+      btn.textContent = 'Verify';
+    } else if (data.status === 'not_found') {
+      errEl.textContent = '❌ This number is not registered. Please contact HR.';
+      errEl.classList.add('show');
+      btn.disabled = false;
+      btn.textContent = 'Verify';
+    } else {
+      throw new Error('Unexpected response');
+    }
+  } catch(e) {
+    errEl.textContent = '⚠ Verification failed. Check your internet and try again.';
+    errEl.classList.add('show');
+    btn.disabled = false;
+    btn.textContent = 'Verify';
+  }
+}
+
+function checkProceedReady() {
+  const ready = phoneVerified &&
+    document.getElementById('inp-name').value.trim().length > 1 &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(document.getElementById('inp-email').value.trim());
+  document.getElementById('btn-proceed').disabled = !ready;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('inp-name').addEventListener('input', checkProceedReady);
+  document.getElementById('inp-email').addEventListener('input', checkProceedReady);
+  document.getElementById('inp-phone').addEventListener('keypress', (e) => {
+    if (!/[0-9]/.test(e.key)) e.preventDefault();
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+//  PROCEED TO DISCLAIMER
+// ═══════════════════════════════════════════════════════
+function proceedToDisclaimer() {
+  const name  = document.getElementById('inp-name').value.trim();
+  const phone = document.getElementById('inp-phone').value.trim();
+  const email = document.getElementById('inp-email').value.trim();
+  let ok = true;
+
+  if (name.length < 2)  { showErr('err-name',  'Please enter your full name.'); ok=false; }
+  if (!phoneVerified)   { showErr('err-phone', 'Please verify your phone number.'); ok=false; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showErr('err-email', 'Enter a valid email.'); ok=false; }
+
+  if (!ok) return;
+  candidate = { name, phone, email };
+  showScreen('screen-disclaimer');
+}
+
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+// ═══════════════════════════════════════════════════════
+//  DISCLAIMER AGREE
+// ═══════════════════════════════════════════════════════
+function toggleBeginBtn() {
+  document.getElementById('btn-begin').disabled = !document.getElementById('chk-agree').checked;
+}
+
+// ═══════════════════════════════════════════════════════
+//  BEGIN TEST
+// ═══════════════════════════════════════════════════════
+function beginTest() {
+  showScreen('screen-quiz');
+  document.getElementById('timer-box').style.display = 'flex';
+  document.getElementById('warning-banner').classList.add('show');
+  buildQuestions();
+  testActive = true;
+  startTime = new Date();
+  startTimer();
+  attachAntiCheat();
+  // Try fullscreen on mobile (best effort)
+  try { document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); } catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════
+//  BUILD QUESTIONS
+// ═══════════════════════════════════════════════════════
+function buildQuestions() {
+  const container = document.getElementById('questions-container');
+  container.innerHTML = '';
+
+  let mcqSectionDone = false;
+  QUESTIONS.forEach((q, i) => {
+    if (q.type === 'text' && !mcqSectionDone) {
+      mcqSectionDone = true;
+      const badge = document.createElement('div');
+      badge.className = 'section-badge';
+      badge.textContent = '✍ Descriptive Questions';
+      container.appendChild(badge);
+    }
+
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    const total = QUESTIONS.length;
+    let inner = `<div class="q-meta">Question ${i+1} of ${total}${q.type==='mcq' ? ' · MCQ' : ' · Descriptive'}</div>`;
+    inner += `<div class="q-text">${i+1}. ${q.text}</div>`;
+
+    if (q.type === 'mcq') {
+      inner += '<div class="options">';
+      q.options.forEach((opt, j) => {
+        inner += `<label class="option-label">
+          <input type="radio" name="q${i}" value="${j}" onchange="updateProgress()">
+          <span>${String.fromCharCode(65+j)}. ${opt}</span>
+        </label>`;
+      });
+      inner += '</div>';
+    } else {
+      inner += `<textarea id="ta${i}" placeholder="Type your answer here…" maxlength="2000" oninput="updateProgress()" onkeydown="blockShortcuts(event)"></textarea>
+        <div style="text-align:right;font-size:11px;color:var(--muted);margin-top:4px" id="char${i}">0 / 2000</div>`;
+    }
+
+    card.innerHTML = inner;
+    container.appendChild(card);
+
+    if (q.type === 'text') {
+      document.getElementById('ta'+i).addEventListener('input', function() {
+        document.getElementById('char'+i).textContent = this.value.length + ' / 2000';
+      });
+    }
+  });
+}
+
+function updateProgress() {
+  let answered = 0;
+  QUESTIONS.forEach((q, i) => {
+    if (q.type === 'mcq') {
+      if (document.querySelector(`input[name="q${i}"]:checked`)) answered++;
+    } else {
+      const ta = document.getElementById('ta'+i);
+      if (ta && ta.value.trim().length > 2) answered++;
+    }
+  });
+  document.getElementById('progress-fill').style.width = Math.round(answered/QUESTIONS.length*100)+'%';
+}
+
+// ═══════════════════════════════════════════════════════
+//  TIMER
+// ═══════════════════════════════════════════════════════
+function startTimer() {
+  timerInterval = setInterval(() => {
+    if (!testActive) return;
+    secondsLeft--;
+    const m = Math.floor(secondsLeft/60);
+    const s = secondsLeft%60;
+    const el = document.getElementById('timer-display');
+    el.textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+    if (secondsLeft <= 60) el.className = 'critical';
+    else if (secondsLeft <= 5*60) el.className = 'warning';
+    if (secondsLeft <= 0) { clearInterval(timerInterval); submitTest(false, 'timeout'); }
+  }, 1000);
+}
+
+// ═══════════════════════════════════════════════════════
+//  ANTI-CHEAT
+// ═══════════════════════════════════════════════════════
+function attachAntiCheat() {
+  window.addEventListener('blur', onViolation);
+  document.addEventListener('visibilitychange', () => { if(document.hidden) onViolation(); });
+  window.addEventListener('beforeunload', (e) => {
+    if (testActive && !testEnded) { e.preventDefault(); e.returnValue=''; }
+  });
+  document.addEventListener('contextmenu', (e) => {
+    if (testActive) { e.preventDefault(); showToast('Right-click disabled.'); }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (!testActive) return;
+    const ctrl = e.ctrlKey || e.metaKey;
+    if (ctrl && ['c','v','x','a','u','s','p','r','f'].includes(e.key.toLowerCase())) {
+      e.preventDefault(); showToast('Keyboard shortcuts are disabled.');
+    }
+    if (['F12','F5'].includes(e.key)) e.preventDefault();
+    if (ctrl && e.shiftKey) e.preventDefault();
+  });
+}
+
+function blockShortcuts(e) {
+  if (testActive && (e.ctrlKey||e.metaKey) && ['v','c','x'].includes(e.key.toLowerCase())) {
+    e.preventDefault();
+    showToast('Paste/copy is disabled.');
+  }
+}
+
+function onViolation() {
+  if (!testActive || testEnded || violationOverlayOpen) return;
+  violations++;
+  if (violations >= 2) { terminateTest(); return; }
+  violationOverlayOpen = true;
+  document.getElementById('v-count').textContent = violations===1 ? '1st' : '2nd';
+  document.getElementById('overlay-violation').classList.add('show');
+}
+
+function dismissOverlay(id) {
+  document.getElementById(id).classList.remove('show');
+  if (id === 'overlay-violation') violationOverlayOpen = false;
+}
+
+// ═══════════════════════════════════════════════════════
+//  SUBMIT FLOW
+// ═══════════════════════════════════════════════════════
+function confirmSubmit() {
+  if (testEnded) return;
+  document.getElementById('overlay-submit').classList.add('show');
+}
+
+async function submitTest(manual=true, reason='manual') {
+  if (testEnded) return;
+  testEnded = true;
+  testActive = false;
+  clearInterval(timerInterval);
+  dismissOverlay('overlay-submit');
+
+  const elapsed = startTime ? Math.floor((new Date()-startTime)/1000) : 0;
+  const timeStr = Math.floor(elapsed/60)+'m '+elapsed%60+'s';
+  const { answers, score } = collectAnswers();
+
+  const payload = {
+    action: 'submit',
+    name: candidate.name,
+    phone: candidate.phone,
+    email: candidate.email,
+    score: score + '/' + MCQ_COUNT,
+    timeTaken: timeStr,
+    violations: violations,
+    flagged: violations > 0,
+    reason: reason,
+    submittedAt: new Date().toISOString(),
+    answers: JSON.stringify(answers)
+  };
+
+  // Show result immediately
+  showResult(score, timeStr, violations, reason);
+
+  // Submit to Google Sheets in background
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  } catch(e) {
+    console.error('Submission error:', e);
+    // Still show result — don't block user
+  }
+}
+
+function collectAnswers() {
+  const answers = [];
+  let score = 0;
+  QUESTIONS.forEach((q, i) => {
+    if (q.type === 'mcq') {
+      const sel = document.querySelector(`input[name="q${i}"]:checked`);
+      const val = sel ? parseInt(sel.value) : null;
+      const correct = val === q.correct;
+      if (correct) score++;
+      answers.push({ q:i+1, type:'mcq', selected: val!==null ? q.options[val] : 'Not answered', correct });
+    } else {
+      const ta = document.getElementById('ta'+i);
+      answers.push({ q:i+1, type:'text', question: q.text, answer: ta ? ta.value.trim() : '' });
+    }
+  });
+  return { answers, score };
+}
+
+function showResult(score, timeStr, viols, reason) {
+  document.getElementById('timer-box').style.display = 'none';
+  document.getElementById('warning-banner').classList.remove('show');
+  showScreen('screen-result');
+
+  const flagged = viols > 0;
+  document.getElementById('result-icon').textContent = flagged ? '⚠️' : '✅';
+  document.getElementById('result-title').textContent = flagged ? 'Submitted — Flagged' : 'Test Submitted!';
+
+  let reasonLabel = 'Normal';
+  if (reason==='timeout') reasonLabel = 'Time Up';
+  if (reason==='manual') reasonLabel = 'Manual Submit';
+  if (reason==='violation') reasonLabel = 'Terminated';
+
+  document.getElementById('result-box').innerHTML = `
+    <div class="result-row"><span class="label">MCQ Score</span><span class="value">${score} / ${MCQ_COUNT}</span></div>
+    <div class="result-row"><span class="label">Time Taken</span><span class="value">${timeStr}</span></div>
+    <div class="result-row"><span class="label">Submitted At</span><span class="value">${new Date().toLocaleTimeString('en-IN')}</span></div>
+    <div class="result-row ${flagged?'flag-row':''}"><span class="label">Violations</span><span class="value">${viols>0?viols+' (Flagged)':'None ✓'}</span></div>
+    <div class="result-row"><span class="label">Reason</span><span class="value">${reasonLabel}</span></div>
+    <div class="result-row"><span class="label">Candidate</span><span class="value">${candidate.name}</span></div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════
+//  TERMINATE
+// ═══════════════════════════════════════════════════════
+function terminateTest() {
+  if (testEnded) return;
+  testEnded = true;
+  testActive = false;
+  clearInterval(timerInterval);
+
+  const { answers, score } = collectAnswers();
+  const elapsed = startTime ? Math.floor((new Date()-startTime)/1000) : 0;
+
+  const payload = {
+    action: 'submit',
+    name: candidate.name,
+    phone: candidate.phone,
+    email: candidate.email,
+    score: score + '/' + MCQ_COUNT,
+    timeTaken: Math.floor(elapsed/60)+'m '+elapsed%60+'s',
+    violations: violations,
+    flagged: true,
+    reason: 'terminated',
+    submittedAt: new Date().toISOString(),
+    answers: JSON.stringify(answers)
+  };
+
+  fetch(APPS_SCRIPT_URL, {
+    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
+  }).catch(()=>{});
+
+  document.getElementById('timer-box').style.display = 'none';
+  document.getElementById('warning-banner').classList.remove('show');
+  showScreen('screen-terminated');
+}
+</script>
+</body>
+</html>
