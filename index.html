@@ -551,32 +551,9 @@
 <div id="warning-banner">⚠ This window is being monitored — do not switch tabs or minimize</div>
 
 <!-- ═══════════════════════════════════════
-     SCREEN 0: ACCESS GATE
-════════════════════════════════════════ -->
-<div id="screen-gate" class="screen active">
-  <div class="card-wrap">
-    <div class="card">
-      <div class="card-logo">
-        <div class="brand">MITTAL <span>PORTFOLIOS</span></div>
-        <div class="sub">Sales Assessment Portal</div>
-      </div>
-      <h2>Enter Access Code</h2>
-      <p>This test is invite-only. Enter the access code provided to you by HR to continue.</p>
-      <div class="field">
-        <label>Access Code</label>
-        <input type="password" id="inp-gate" placeholder="Enter access code"
-          autocomplete="off" onkeydown="if(event.key==='Enter') checkGate()">
-        <div class="field-error" id="err-gate">Incorrect access code. Please contact HR.</div>
-      </div>
-      <button class="btn-primary gold" onclick="checkGate()">Unlock Test →</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════
      SCREEN 1: CREDENTIALS
 ════════════════════════════════════════ -->
-<div id="screen-credentials" class="screen">
+<div id="screen-credentials" class="screen active">
   <div class="card-wrap">
     <div class="card">
       <div class="card-logo">
@@ -739,38 +716,7 @@
 // ═══════════════════════════════════════════════════════
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyem5aSnlUMTjuREFlGdUtYo9nPp2jmdJEoKIlcpI4N_xctDak7_WJ0np5X-YW8gfLW/exec';
 
-// ═══════════════════════════════════════════════════════
-//  ACCESS GATE — change this code whenever needed
-// ═══════════════════════════════════════════════════════
-const ACCESS_CODE = 'MP@Sales2025';  // ← change this to whatever you want
 
-function checkGate() {
-  const val = document.getElementById('inp-gate').value.trim();
-  const err = document.getElementById('err-gate');
-  err.classList.remove('show');
-
-  if (val === ACCESS_CODE) {
-    sessionStorage.setItem('mp_access', '1');
-    showScreen('screen-credentials');
-  } else {
-    err.classList.add('show');
-    document.getElementById('inp-gate').value = '';
-    document.getElementById('inp-gate').focus();
-    // Shake animation
-    const input = document.getElementById('inp-gate');
-    input.style.animation = 'none';
-    input.style.borderColor = 'var(--red)';
-    setTimeout(() => { input.style.borderColor = ''; }, 1500);
-  }
-}
-
-// Block direct access if session not unlocked
-(function() {
-  if (!sessionStorage.getItem('mp_access')) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('screen-gate').classList.add('active');
-  }
-})();
 // ^^ Replace with your deployed Google Apps Script URL after setup
 
 // ═══════════════════════════════════════════════════════
@@ -864,12 +810,16 @@ async function verifyPhone() {
 
     if (data.status === 'allowed') {
       phoneVerified = true;
-      sessionStorage.setItem('mp_verified_phone', ph);
       document.getElementById('verified-badge').classList.add('show');
       document.getElementById('inp-phone').readOnly = true;
       btn.style.display = 'none';
       checkProceedReady();
       showToast('✅ Number verified successfully!');
+    } else if (data.status === 'already_verified') {
+      errEl.textContent = '⚠ This number was already verified. Each number can only be verified once. Please contact HR if this is an error.';
+      errEl.classList.add('show');
+      btn.disabled = false;
+      btn.textContent = 'Verify';
     } else if (data.status === 'used') {
       errEl.textContent = '⚠ This number has already been used to attempt the test.';
       errEl.classList.add('show');
@@ -905,17 +855,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!/[0-9]/.test(e.key)) e.preventDefault();
   });
 
-  // Restore verified phone state after reload
-  const savedPhone = sessionStorage.getItem('mp_verified_phone');
-  if (savedPhone) {
-    phoneVerified = true;
-    const phoneInput = document.getElementById('inp-phone');
-    phoneInput.value = savedPhone;
-    phoneInput.readOnly = true;
-    document.getElementById('btn-verify').style.display = 'none';
-    document.getElementById('verified-badge').classList.add('show');
-    checkProceedReady();
-  }
 });
 
 // ═══════════════════════════════════════════════════════
